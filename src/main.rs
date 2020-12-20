@@ -1,26 +1,50 @@
+use std::fmt::Display;
+
 use reqwest::Error;
+use serde_json::Value;
 
 static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
 
 #[tokio::main]
 async fn main() -> Result<(), String> {
-    let body = fetch_crateinfo("reqwest").await?;
-    println!("body = {:?}", body);
+    let keywords = crate_keywords("reqwest").await?;
+    println!("keywords = {:?}", keywords);
     Ok(())
 }
+
 async fn crate_keywords(crate_name: &str) -> Result<String, String> {
     let crate_info = fetch_crateinfo(crate_name).await?;
     keywords_from_response(crate_info)
 }
 
-fn keywords_from_response(response: String) -> Result<String, String> {
-    Ok("".to_string())
+fn keywords_from_response(crate_info: String) -> Result<String, String> {
+    let json: Value = serde_json::from_str(&crate_info).map_err(err_to_string)?;
+    if let Value::Array(keywords) = &json["crate"]["keywords"] {
+        let result = keywords
+            .iter()
+            .filter_map(|it| {
+                if let Value::String(string) = it {
+                    Some(string.clone())
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>()
+            .join(", ");
+        Ok(result)
+    } else {
+        Err("No keywords in body".to_string())
+    }
 }
 
 async fn fetch_crateinfo(crate_name: &str) -> Result<String, String> {
     let url = "https://crates.io/api/v1/crates/".to_owned() + crate_name;
     let result = fetch_url(&url).await;
-    result.map_err(|error| format!("error code: {}", error))
+    result.map_err(err_to_string)
+}
+
+fn err_to_string<E: Display>(error: E) -> String {
+    format!("error: {}", error)
 }
 
 async fn fetch_url(url: &str) -> Result<String, Error> {
