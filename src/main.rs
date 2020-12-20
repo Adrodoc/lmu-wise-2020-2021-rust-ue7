@@ -2,13 +2,22 @@ use std::fmt::Display;
 
 use reqwest::Error;
 use serde_json::Value;
+use tokio::try_join;
 
 static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
 
 #[tokio::main]
 async fn main() -> Result<(), String> {
-    let keywords = crate_keywords("reqwest").await?;
-    println!("keywords = {:?}", keywords);
+    let serde = print_keywords("serde");
+    let tokio = print_keywords("tokio");
+    let reqwest = print_keywords("reqwest");
+    try_join!(serde, tokio, reqwest)?;
+    Ok(())
+}
+
+async fn print_keywords(crate_name: &str) -> Result<(), String> {
+    let keywords = crate_keywords(crate_name).await?;
+    println!("keywords of {}: {}", crate_name, keywords);
     Ok(())
 }
 
