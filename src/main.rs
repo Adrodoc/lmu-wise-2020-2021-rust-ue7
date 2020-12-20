@@ -8,9 +8,17 @@ async fn main() -> Result<(), String> {
     println!("body = {:?}", body);
     Ok(())
 }
+async fn crate_keywords(crate_name: &str) -> Result<String, String> {
+    let crate_info = fetch_crateinfo(crate_name).await?;
+    keywords_from_response(crate_info)
+}
 
-async fn fetch_crateinfo(c: &str) -> Result<String, String> {
-    let url = "https://crates.io/api/v1/crates/".to_owned() + c;
+fn keywords_from_response(response: String) -> Result<String, String> {
+    Ok("".to_string())
+}
+
+async fn fetch_crateinfo(crate_name: &str) -> Result<String, String> {
+    let url = "https://crates.io/api/v1/crates/".to_owned() + crate_name;
     let result = fetch_url(&url).await;
     result.map_err(|error| format!("error code: {}", error))
 }
