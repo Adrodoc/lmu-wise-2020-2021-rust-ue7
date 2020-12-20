@@ -4,7 +4,7 @@ use reqwest::Error;
 use serde_json::Value;
 use tokio::try_join;
 
-static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
+const APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
 
 #[tokio::main]
 async fn main() -> Result<(), String> {
