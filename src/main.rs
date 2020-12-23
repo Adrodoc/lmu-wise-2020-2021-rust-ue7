@@ -33,7 +33,7 @@ fn keywords_from_response(crate_info: String) -> Result<String, String> {
             .iter()
             .filter_map(|it| {
                 if let Value::String(string) = it {
-                    Some(string.clone())
+                    Some(string.as_str())
                 } else {
                     None
                 }
