@@ -28,13 +28,7 @@ fn keywords_from_response(crate_info: String) -> Result<String, String> {
     if let Value::Array(keywords) = &json["crate"]["keywords"] {
         let result = keywords
             .iter()
-            .filter_map(|it| {
-                if let Value::String(string) = it {
-                    Some(string.as_str())
-                } else {
-                    None
-                }
-            })
+            .filter_map(Value::as_str)
             .collect::<Vec<_>>()
             .join(", ");
         Ok(result)
