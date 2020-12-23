@@ -47,7 +47,7 @@ fn keywords_from_response(crate_info: String) -> Result<String, String> {
 }
 
 async fn fetch_crateinfo(crate_name: &str) -> Result<String, String> {
-    let url = "https://crates.io/api/v1/crates/".to_owned() + crate_name;
+    let url = format!("https://crates.io/api/v1/crates/{}", crate_name);
     let result = fetch_url(&url).await;
     result.map_err(err_to_string)
 }
