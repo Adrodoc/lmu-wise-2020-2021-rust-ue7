@@ -25,16 +25,14 @@ async fn crate_keywords(crate_name: &str) -> Result<String, String> {
 
 fn keywords_from_response(crate_info: String) -> Result<String, String> {
     let json: Value = serde_json::from_str(&crate_info).map_err(err_to_string)?;
-    if let Value::Array(keywords) = &json["crate"]["keywords"] {
-        let result = keywords
-            .iter()
-            .filter_map(Value::as_str)
-            .collect::<Vec<_>>()
-            .join(", ");
-        Ok(result)
-    } else {
-        Err("No keywords in body".to_string())
-    }
+    let result = json["crate"]["keywords"]
+        .as_array()
+        .ok_or("No keywords array in body")?
+        .iter()
+        .filter_map(Value::as_str)
+        .collect::<Vec<_>>()
+        .join(", ");
+    Ok(result)
 }
 
 async fn fetch_crateinfo(crate_name: &str) -> Result<String, String> {
