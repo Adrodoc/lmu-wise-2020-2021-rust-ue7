@@ -1,17 +1,14 @@
-use std::fmt::Display;
-
+use futures::future::try_join_all;
 use reqwest::Error;
 use serde_json::Value;
-use tokio::try_join;
+use std::fmt::Display;
 
 const APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
 
 #[tokio::main]
 async fn main() -> Result<(), String> {
-    let serde = print_keywords("serde");
-    let tokio = print_keywords("tokio");
-    let reqwest = print_keywords("reqwest");
-    try_join!(serde, tokio, reqwest)?;
+    let crate_names = ["serde", "tokio", "reqwest"];
+    try_join_all(crate_names.iter().map(|it| print_keywords(it))).await?;
     Ok(())
 }
 
